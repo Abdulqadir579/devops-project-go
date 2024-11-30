@@ -107,70 +107,62 @@
 	   
 	   
 	   
-	ociImages = forEachSupportedSystem ({ pkgs, nix2containerPkgs, system , ...}: {
-		
-		
 
-		
-		ociImage_pkgs_runtime = nix2containerPkgs.nix2container.buildImage {
-			name = "saiyam911/devops-kube-proj";
-			config = {
-				cmd = [  ];
+ociImage_pkgs = forEachSupportedSystem ({ pkgs, nix2containerPkgs, system ,  nixpkgs-1ebb7d7bba2953a4223956cfb5f068b0095f84a7-pkgs,  nixpkgs-ac5c1886fd9fe49748d7ab80accc4c847481df14-pkgs,  nixpkgs-7445ccd775d8b892fc56448d17345443a05f7fb4-pkgs,  nixpkgs-d7570b04936e9b0f5268e0d834dee40368ad3308-pkgs,  ... }: {
+  
 
-				entrypoint = [  ];
-				env = [
-					
-				];
-				ExposedPorts = {
-					
-				};
-			};
-			maxLayers = 100;
-			layers = [
-				(nix2containerPkgs.nix2container.buildLayer { 
-					copyToRoot = [
-						inputs.self.runtimeEnvs.${system}.runtime
-						
-					];
-				})
-			];      
-		};
+  
+  ociImage_pkgs_base = nix2containerPkgs.nix2container.buildImage {
+    name = "aqkhan001/devops-project-go";
+    config = {
+      cmd = [  ];
+      entrypoint = [  ];
+      env = [
+        
+      ];
+      ExposedPorts = {
+        
+      };
+    };
+    maxLayers = 100;
+    layers = [
+       (nix2containerPkgs.nix2container.buildLayer { 
+			copyToRoot = [
+				nixpkgs-ac5c1886fd9fe49748d7ab80accc4c847481df14-pkgs.cacert
+			];
+		})  (nix2containerPkgs.nix2container.buildLayer { 
+			copyToRoot = [
+				nixpkgs-1ebb7d7bba2953a4223956cfb5f068b0095f84a7-pkgs.bash
+			];
+		})  (nix2containerPkgs.nix2container.buildLayer { 
+			copyToRoot = [
+				nixpkgs-7445ccd775d8b892fc56448d17345443a05f7fb4-pkgs.coreutils-full
+			];
+		})  (nix2containerPkgs.nix2container.buildLayer { 
+			copyToRoot = [
+				nixpkgs-d7570b04936e9b0f5268e0d834dee40368ad3308-pkgs.delve
+			];
+		})  (nix2containerPkgs.nix2container.buildLayer { 
+			copyToRoot = [
+				nixpkgs-7445ccd775d8b892fc56448d17345443a05f7fb4-pkgs.go
+			];
+		})  (nix2containerPkgs.nix2container.buildLayer { 
+			copyToRoot = [
+				nixpkgs-d7570b04936e9b0f5268e0d834dee40368ad3308-pkgs.gotools
+			];
+		}) 
+      
+    ];
+  };
+  
 
-		ociImage_pkgs_dev = nix2containerPkgs.nix2container.buildImage {
-			name = "saiyam911/devops-kube-proj";
-			config = {
-				cmd = [  ];
+  
+  
+  ociImage_pkgs_base-as-dir = pkgs.runCommand "image-as-dir" { } "${inputs.self.ociImage_pkgs.${system}.ociImage_pkgs_base.copyTo}/bin/copy-to dir:$out";
+  
+  });
 
-				entrypoint = [  ];
-				env = [
-					
-				];
-				ExposedPorts = {
-					
-				};
-			};
-			maxLayers = 100;
-			layers = [
-				(nix2containerPkgs.nix2container.buildLayer { 
-					copyToRoot = [
-						inputs.self.runtimeEnvs.${system}.runtime
-						
-						inputs.self.devEnvs.${system}.development
-					];
-				})
-			];      
-		};
-		
-		
 
-		
-		
-		
-		ociImage_pkgs_runtime-as-dir = pkgs.runCommand "image-as-dir" { } "${inputs.self.ociImages.${system}.ociImage_pkgs_runtime.copyTo}/bin/copy-to dir:$out";
-		ociImage_pkgs_dev-as-dir = pkgs.runCommand "image-as-dir" { } "${inputs.self.ociImages.${system}.ociImage_pkgs_dev.copyTo}/bin/copy-to dir:$out";
-		
-		
-	});
 
 	   
 	};
