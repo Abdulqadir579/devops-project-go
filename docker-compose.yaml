@@ -7,28 +7,29 @@ services:
       - "8080:8080"
     depends_on:
       - db
-      - prometheus
-  
+
   db:
     image: postgres:alpine
     environment:
-      DB_HOST: host.docker.internal
-      DB_PASSWORD: 12345
-      DB_USER: postgres
-      DB_NAME: godb
-      DB_PORT: 5432
-      SSL: disable
-    
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_USER: postgres
+      POSTGRES_DB: godb
+      POSTGRES_INITDB_COMMAND: initdb -D /var/lib/postgresql/data --auth-method=trust
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
   prometheus:
     image: prom/prometheus:latest
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
-    depends_on:
+    depends_on:  
       - db
       - app
-
+  
   grafana:
     image: grafana/grafana:latest
     ports:
@@ -36,3 +37,5 @@ services:
     depends_on:
       - prometheus
 
+volumes:
+  db_data:
